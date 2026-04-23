@@ -1,3 +1,4 @@
+using Unity.Mathematics;
 using UnityEngine;
 
 public class TargetScript : MonoBehaviour
@@ -21,7 +22,7 @@ public class TargetScript : MonoBehaviour
             Debug.DrawLine(lastPointHit, faceCenter);
         }
     }
-    void calculateScore(Vector3 position)
+    int calculateScore(Vector3 position)
     {
         lastPointHit = position;
         Vector3 forwardNormal = transform.forward;
@@ -32,7 +33,9 @@ public class TargetScript : MonoBehaviour
         float percentage = (0.6f - distanceFromCenter) / 0.6f;
         float accuracy = scoreCurve.Evaluate(percentage);
         float score = accuracy * maxScoreValue;
-        Debug.Log("Score "+ score + ", Accuracy " + accuracy);
+        int finalScore = (int)math.round(score);
+        Debug.Log("Score " + finalScore + ", Accuracy " + accuracy);
+        return finalScore;
     }
 
     
@@ -42,7 +45,8 @@ public class TargetScript : MonoBehaviour
         if (!(collision.gameObject.GetComponent<Bullet>() == null))
         {
             ContactPoint contact = collision.GetContact(0);
-            calculateScore(contact.point);
+            int score = calculateScore(contact.point);
+            ShootingGalleryManager.Instance.removeTargetFromGallery(gameObject, score);
             Destroy(collision.gameObject);
         }
     }
